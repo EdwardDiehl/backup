@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -o errexit    # always exit on error
+set -o nounset    # fail on unset variables
+
+dumpfile="$1"
+tempfile="/tmp/$dumpfile"
+
+trap "rm /tmp/$(basename --suffix=.dump.gz $dumpfile).*" EXIT
+
+echo "Restoring from $dumpfile"
+
+echo "  - Downloading"
+aws s3 cp "s3://$AWS_S3_BUCKET/$dumpfile" "$tempfile"
+
+echo "  - Extracting"
+gunzip --quiet \
+       $tempfile
+
+tempfile="/tmp/$(basename --suffix=.gz $dumpfile)"
+
+echo "  - Restoring"
+pg_restore --host=$PG_HOST \
+           --port=$PG_PORT \
+           --username=$PG_USERNAME \
+           --dbname=$PG_DATABASE \
+           --clean \
+           --no-owner \
+           --format=custom \
+           $tempfile
+
+echo "Done."
