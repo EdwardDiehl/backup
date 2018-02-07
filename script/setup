@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Set up application for the first time after cloning, or set it
+# back to the initial first unused state.
+#
+# Examples
+#
+#   script/setup
+set -o errexit    # always exit on error
+set -o nounset    # fail on unset variables
+
+cd "$(dirname "$0")/.."
+
+if which docker-compose > /dev/null
+then
+  make build
+
+  script/bootstrap
+
+  echo "==> Preparing the development environment…"
+  docker-compose run --rm \
+                     --volume="$(pwd)":/root/tmp:ro \
+                     backup '/root/tmp/script/setup'
+
+  exit 0
+fi
+
+dropdb --host=$PGHOST \
+       --port=$PGPORT \
+       --username=$PGUSER \
+       --if-exists \
+       $PGDATABASE
+
+createdb --host=$PGHOST \
+         --port=$PGPORT \
+         --username=$PGUSER \
+         $PGDATABASE
+
+psql --host=$PGHOST \
+     --port=$PGPORT \
+     --username=$PGUSER \
+     --dbname=$PGDATABASE \
+     --file=sample.sql

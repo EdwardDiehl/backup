@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  backup:
+    depends_on:
+      - postgres
+    env_file: .env
+    image: rubyjobsru/backup
+
+  postgres:
+    environment:
+      - POSTGRES_PASSWORD=${PGPASSWORD}
+    image: postgres:9.6
+    volumes:
+      - data-postgres_9_6:/var/lib/postgresql/data
+
+volumes:
+  data-postgres_9_6:

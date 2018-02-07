@@ -20,10 +20,10 @@ gunzip --quiet \
 tempfile="/tmp/$(basename --suffix=.gz $dumpfile)"
 
 echo "  - Restoring"
-pg_restore --host=$PG_HOST \
-           --port=$PG_PORT \
-           --username=$PG_USERNAME \
-           --dbname=$PG_DATABASE \
+pg_restore --host=$PGHOST \
+           --port=$PGPORT \
+           --username=$PGUSER \
+           --dbname=$PGDATABASE \
            --clean \
            --no-owner \
            --format=custom \

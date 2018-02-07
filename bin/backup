@@ -3,7 +3,8 @@
 set -o errexit    # always exit on error
 set -o nounset    # fail on unset variables
 
-source /root/env
+source /root/.env
+PATH=$PATH:/bin:/usr/bin:/usr/local/bin
 
 filename="$(date +%Y-%m-%d@%H%M%S)"
 tempfile=$(mktemp -t "$filename.XXXXX.dump")
@@ -13,10 +14,10 @@ trap "rm $tempfile.*" EXIT
 echo "Backing up into $tempfile"
 
 echo "  - Capturing"
-pg_dump --host=$PG_HOST \
-        --port=$PG_PORT \
-        --username=$PG_USERNAME \
-        --dbname=$PG_DATABASE \
+pg_dump --host=$PGHOST \
+        --port=$PGPORT \
+        --username=$PGUSER \
+        --dbname=$PGDATABASE \
         --encoding=utf-8 \
         --clean \
         --no-owner \
@@ -29,7 +30,6 @@ gzip --best \
      $tempfile
 
 echo "  - Uploading to AWS S3"
-
 aws s3 cp "$tempfile.gz" "s3://$AWS_S3_BUCKET"
 
 echo "Done."

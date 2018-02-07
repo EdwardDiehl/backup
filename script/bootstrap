@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+#
+# Resolve all dependencies that the application requires to run.
+#
+# Examples
+#
+#   script/bootstrap
+set -o errexit
+
+cd "$(dirname "$0")/.."
+
+echo "==> Updating .env file…"
+if [ ! -f .env ]
+then
+  touch .env
+  chmod 0600 .env
+fi
+
+for line in `cat .env.sample`
+do
+  key="${line%%=*}"
+
+  # If .env doesn't contain this env key, add it
+  if ! `grep -qLE "^$key=" .env`
+  then
+    echo "Adding $key"
+    echo $line >> .env
+  fi
+done
+
+# Keep all keys in .env file alphabetically sorted
+sort .env > .env.sorted
+mv .env.sorted .env
