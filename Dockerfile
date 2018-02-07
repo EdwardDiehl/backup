@@ -19,19 +19,14 @@ RUN apt-get update && \
                        curl \
                        postgresql-client-9.6 \
                        python \
-                       unzip
-
-# Install AWS CLI.
-RUN curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip \
+                       unzip && \
+    curl https://s3.amazonaws.com/aws-cli/awscli-bundle.zip \
          --remote-name && \
     unzip awscli-bundle.zip && \
     awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
     rm awscli-bundle.zip && \
-    rm -rf awscli-bundle/
-
-# Remove unused dependencies. Tools like curl or unzip were necessary just to
-# install other dependencies. They are not relevant to the running container.
-RUN apt-get purge -y \
+    rm -rf awscli-bundle/ && \
+    apt-get purge -y \
             curl \
             unzip && \
     apt-get autoremove -y && \
