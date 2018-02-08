@@ -34,9 +34,8 @@ RUN apt-get update && \
 
 COPY bin/* /usr/local/bin/
 
-# TODO: Change to hourly schedule.
 # Configure cron to run the backup routine on regular basis.
-RUN echo "* * * * * /usr/local/bin/backup > /proc/1/fd/1 2>/proc/1/fd/2" | crontab
+RUN echo "@hourly /usr/local/bin/backup > /proc/1/fd/1 2>/proc/1/fd/2" | crontab
 
 ENV HOME=/root
 WORKDIR $HOME
